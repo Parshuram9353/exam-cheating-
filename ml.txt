@@ -1,0 +1,872 @@
+Machine Learning lab
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+A1)Write a program to implement how to read and display a dataset in Python.
+# Import necessary libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the dataset
+
+# 1. From Google Drive
+# from google.colab import drive
+# drive.mount('/content/drive')
+# df = pd.read_csv("/content/drive/MyDrive/breast-cancer.csv")
+
+# 2. From URL
+# url = "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv"
+# df = pd.read_csv(url)
+
+# 3. From sklearn dataset
+from sklearn.datasets import load_iris
+
+iris = load_iris()
+df = pd.DataFrame(iris.data, columns=iris.feature_names)
+
+# 4. From local file
+# df = pd.read_csv("your_file.csv")
+
+# Display dataset
+print("Dataset Head:")
+print(df.head())
+
+print("\nDataset Info:")
+df.info()   # Displays column data types and non-null counts
+
+print("\nDataset Description:")
+print(df.describe())
+
+print("\nDataset Shape:")
+print(df.shape)
+
+print("\nColumn Names:")
+print(df.columns)
+
+print("\nMissing Values:")
+print(df.isnull().sum())
+
+# Basic Data Visualization
+print("\nBasic Data Visualization:")
+df.hist(figsize=(10, 8))
+plt.tight_layout()
+plt.show()
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+A2)Write a program to learn how to select features for machine learning
+import numpy as np
+import pandas as pd
+
+from sklearn.datasets import load_iris
+from sklearn.feature_selection import SelectKBest, f_classif, RFE
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+
+# Load dataset
+iris = load_iris()
+
+X = pd.DataFrame(iris.data, columns=iris.feature_names)
+y = iris.target
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.3,
+    random_state=42
+)
+
+# -----------------------------
+# 1. Univariate Feature Selection
+# -----------------------------
+print("Univariate Feature Selection:")
+
+selector = SelectKBest(score_func=f_classif, k=2)
+X_new = selector.fit_transform(X_train, y_train)
+
+print("Feature Scores:")
+for feature, score in zip(X_train.columns, selector.scores_):
+    print(f"{feature}: {score:.4f}")
+
+print("\nSelected Features:")
+print(list(X_train.columns[selector.get_support()]))
+
+# -----------------------------
+# 2. Recursive Feature Elimination (RFE)
+# -----------------------------
+print("\nRecursive Feature Elimination (RFE):")
+
+model = RandomForestClassifier(
+    n_estimators=100,
+    random_state=42
+)
+
+rfe = RFE(estimator=model, n_features_to_select=2)
+rfe.fit(X_train, y_train)
+
+print("Selected Features:")
+print(list(X_train.columns[rfe.support_]))
+
+# -----------------------------
+# 3. Feature Importance
+# -----------------------------
+print("\nFeature Importance from Random Forest:")
+
+model.fit(X_train, y_train)
+
+importances = model.feature_importances_
+indices = np.argsort(importances)[::-1]
+
+print("Feature Ranking:")
+
+for i in indices:
+    print(f"{X_train.columns[i]}: {importances[i]:.4f}")
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+A3)Write the program to implement Data Pre-processing for Machine learning
+import pandas as pd
+import numpy as np
+
+# Load data
+data = pd.DataFrame({
+    'age': [25, np.nan, 30, 45, np.nan],
+    'salary': [50000, 60000, np.nan, 65000, 70000],
+    'city': ['New York', 'Los Angeles', 'New York', 'San Francisco', np.nan],
+    'target': [1, 0, 1, 0, 1]
+})
+
+# Display the original data
+print("Original Data:")
+print(data)
+
+# Display missing values
+print("\nMissing Values:")
+print(data.isnull().sum())
+
+# Percentage of missing values
+print("\nPercentage of Missing Values:")
+print(data.isnull().mean() * 100)
+
+# Remove rows with missing values
+data = data.dropna().copy()
+
+print("\nAfter Removing Rows with Missing Values:")
+print(data)
+
+# Uncomment these lines if you want to use imputation instead
+"""
+from sklearn.impute import SimpleImputer
+
+# Numerical features
+num_features = ['age', 'salary']
+imputer_num = SimpleImputer(strategy='mean')
+data[num_features] = imputer_num.fit_transform(data[num_features])
+
+# Categorical features
+cat_features = ['city']
+imputer_cat = SimpleImputer(strategy='most_frequent')
+data[cat_features] = imputer_cat.fit_transform(data[cat_features])
+"""
+
+# Encoding categorical features
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+
+cat_features = ['city']
+label_encoders = {}
+
+for col in cat_features:
+    le = LabelEncoder()
+    data[col] = le.fit_transform(data[col])
+    label_encoders[col] = le
+
+# Feature scaling
+scaler = StandardScaler()
+
+num_features = ['age', 'salary']
+data[num_features] = scaler.fit_transform(data[num_features])
+
+# Save cleaned dataset
+data.to_csv("cleaned_dataset.csv", index=False)
+
+# Read and display the cleaned dataset
+data1 = pd.read_csv("cleaned_dataset.csv")
+
+print("\nCleaned Dataset:")
+print(data1)
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+A4)Write a program to implement Classification Algorithm. Calculate the accuracy, precision,recall.
+import numpy as np
+import pandas as pd
+
+# Load the Iris dataset
+from sklearn.datasets import load_iris
+
+iris = load_iris()
+X = pd.DataFrame(iris.data, columns=iris.feature_names)
+y = iris.target
+
+# Split the data into training and testing sets
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.3,
+    random_state=42
+)
+
+# Create and train the KNN model
+from sklearn.neighbors import KNeighborsClassifier
+
+knn = KNeighborsClassifier(n_neighbors=10)
+knn.fit(X_train, y_train)
+
+# Make predictions
+y_pred = knn.predict(X_test)
+
+# Evaluate the model
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
+
+cm = confusion_matrix(y_test, y_pred)
+print("Confusion Matrix:\n")
+print(cm)
+
+print("\nClassification Report:\n")
+print(classification_report(y_test, y_pred, target_names=iris.target_names))
+
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy * 100:.2f}%")
+
+print(f"KNN Score: {knn.score(X_test, y_test):.2f}")
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+A5)Write a program to demonstrate SVM with different kernel methods.
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import warnings
+
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn import svm
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.exceptions import UndefinedMetricWarning
+
+# Ignore UndefinedMetricWarning
+warnings.filterwarnings("ignore", category=UndefinedMetricWarning)
+
+# Load the Iris dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42
+)
+
+# Define SVM models with different kernels
+kernels = ['linear', 'poly', 'rbf', 'sigmoid']
+models = {}
+
+for kernel in kernels:
+    print("=" * 50)
+    print(f"Kernel: {kernel}")
+
+    # Train the model
+    model = svm.SVC(kernel=kernel)
+    model.fit(X_train, y_train)
+    models[kernel] = model
+
+    # Predict
+    y_pred = model.predict(X_test)
+
+    # Print Classification Report
+    print("\nClassification Report:")
+    print(
+        classification_report(
+            y_test,
+            y_pred,
+            target_names=iris.target_names,
+            zero_division=0
+        )
+    )
+
+    # Print Confusion Matrix
+    print("Confusion Matrix:")
+    print(confusion_matrix(y_test, y_pred))
+
+print("=" * 50)
+print("Comparison of all SVM kernels completed.")
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+A6)Comparison of Machine Learning techniques.
+import numpy as np
+import pandas as pd
+
+# Load Iris dataset
+from sklearn.datasets import load_iris
+
+iris = load_iris()
+X = pd.DataFrame(iris.data, columns=iris.feature_names)
+y = iris.target
+
+# Split data into training and testing sets
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.3,
+    random_state=42
+)
+
+# K-Nearest Neighbors
+from sklearn.neighbors import KNeighborsClassifier
+
+knn = KNeighborsClassifier(n_neighbors=7)
+knn.fit(X_train, y_train)
+print("KNN =", knn.score(X_test, y_test))
+
+# Support Vector Machine
+from sklearn.svm import SVC
+
+svm = SVC()
+svm.fit(X_train, y_train)
+print("SVM =", svm.score(X_test, y_test))
+
+# Decision Tree
+from sklearn.tree import DecisionTreeClassifier
+
+tree = DecisionTreeClassifier(random_state=42)
+tree.fit(X_train, y_train)
+print("Decision Tree =", tree.score(X_test, y_test))
+
+# Random Forest
+from sklearn.ensemble import RandomForestClassifier
+
+forest = RandomForestClassifier(
+    n_estimators=5,
+    random_state=42
+)
+forest.fit(X_train, y_train)
+print("Random Forest =", forest.score(X_test, y_test))
+
+# Logistic Regression
+from sklearn.linear_model import LogisticRegression
+
+logreg = LogisticRegression(max_iter=1000)
+logreg.fit(X_train, y_train)
+print("Logistic Regression =", logreg.score(X_test, y_test))
+
+# Naive Bayes
+from sklearn.naive_bayes import GaussianNB
+
+nb = GaussianNB()
+nb.fit(X_train, y_train)
+print("Naive Bayes =", nb.score(X_test, y_test))
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+A7)Write a program to create the clustering model.
+import numpy as np
+from sklearn.cluster import DBSCAN
+import matplotlib.pyplot as plt
+
+# Generate sample data
+np.random.seed(42)
+X = np.random.randn(50, 2)  # 50 data points with 2 features
+
+# Add some random noise (outliers)
+X = np.vstack([X, np.random.uniform(low=-6, high=6, size=(20, 2))])
+
+# Apply DBSCAN clustering
+# eps: maximum distance between points in the same cluster
+# min_samples: minimum number of points required to form a dense region
+dbscan = DBSCAN(eps=0.5, min_samples=5)
+
+# Predict cluster labels
+labels = dbscan.fit_predict(X)
+
+# Plot the clustering results
+plt.figure(figsize=(8, 6))
+plt.scatter(X[:, 0], X[:, 1], c=labels, cmap="viridis", marker="o", s=50)
+
+plt.title("DBSCAN Clustering")
+plt.xlabel("Feature 1")
+plt.ylabel("Feature 2")
+plt.colorbar(label="Cluster Label")
+
+plt.show()
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+A8)Write a program to create two clustering model on same dataset. Compare the results of
+these two algorithms and comment on the quality of clustering.
+import numpy as np
+import matplotlib.pyplot as plt
+
+from sklearn.cluster import KMeans
+from sklearn_extra.cluster import KMedoids
+from sklearn.metrics import silhouette_score, davies_bouldin_score
+
+# Generate sample data (50 data points with 2 features)
+np.random.seed(42)
+X = np.random.randn(50, 2)
+
+# ---------------- K-Means ----------------
+kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
+kmeans.fit(X)
+
+# Cluster centers and labels
+centers = kmeans.cluster_centers_
+Klabels = kmeans.labels_
+
+# Metrics
+kmeans_inertia = kmeans.inertia_
+kmeans_silhouette = silhouette_score(X, Klabels)
+kmeans_db = davies_bouldin_score(X, Klabels)
+
+# ---------------- K-Medoids ----------------
+kmedoids = KMedoids(n_clusters=3, random_state=42)
+kmedoids.fit(X)
+
+# Medoids and labels
+medoids = kmedoids.cluster_centers_
+KMlabels = kmedoids.labels_
+
+# Metrics
+kmedoids_silhouette = silhouette_score(X, KMlabels)
+kmedoids_db = davies_bouldin_score(X, KMlabels)
+
+# ---------------- Results ----------------
+print("K-Means:")
+print(f"Silhouette Score: {kmeans_silhouette:.4f}")
+print(f"Davies-Bouldin Index: {kmeans_db:.4f}")
+print(f"Inertia: {kmeans_inertia:.4f}")
+
+print("\nK-Medoids:")
+print(f"Silhouette Score: {kmedoids_silhouette:.4f}")
+print(f"Davies-Bouldin Index: {kmedoids_db:.4f}")
+
+print("\nInterpretation:")
+print("Higher Silhouette Score -> Better separated clusters")
+print("Lower Davies-Bouldin Index -> Better clustering")
+print("Lower Inertia (K-Means) -> More compact clusters")
+
+# ---------------- Plot ----------------
+plt.figure(figsize=(12, 5))
+
+# K-Means
+plt.subplot(1, 2, 1)
+plt.scatter(X[:, 0], X[:, 1], c=Klabels, cmap="viridis")
+plt.scatter(
+    centers[:, 0],
+    centers[:, 1],
+    c="red",
+    marker="X",
+    s=200,
+    label="Centroids"
+)
+plt.title("K-Means Clustering")
+plt.xlabel("Feature 1")
+plt.ylabel("Feature 2")
+plt.legend()
+
+# K-Medoids
+plt.subplot(1, 2, 2)
+plt.scatter(X[:, 0], X[:, 1], c=KMlabels, cmap="viridis")
+plt.scatter(
+    medoids[:, 0],
+    medoids[:, 1],
+    c="red",
+    marker="X",
+    s=200,
+    label="Medoids"
+)
+plt.title("K-Medoids Clustering")
+plt.xlabel("Feature 1")
+plt.ylabel("Feature 2")
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+B1)Write a program to demonstrate the working of the decision tree based ID3 algorithm. Use
+an appropriate data set for building the decision tree and apply this knowledge to classify a
+new sample.
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, export_text, plot_tree
+
+# Load the Iris dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# Create a DataFrame for better visualization
+df = pd.DataFrame(X, columns=iris.feature_names)
+df["target"] = y
+
+print("First 5 rows of the dataset:")
+print(df.head())
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42
+)
+
+# Create a Decision Tree Classifier using the ID3 algorithm
+# (criterion='entropy' corresponds to ID3)
+clf = DecisionTreeClassifier(
+    criterion="entropy",
+    random_state=42
+)
+
+# Train the model
+clf.fit(X_train, y_train)
+
+# Make predictions
+y_pred = clf.predict(X_test)
+
+# Evaluate the model
+accuracy = clf.score(X_test, y_test)
+print(f"\nAccuracy: {accuracy * 100:.2f}%")
+
+# Display the Decision Tree
+plt.figure(figsize=(12, 8))
+plot_tree(
+    clf,
+    filled=True,
+    feature_names=iris.feature_names,
+    class_names=iris.target_names,
+    rounded=True
+)
+
+plt.title("Decision Tree using ID3 Algorithm")
+plt.show()
+
+# Print the tree structure
+print("\nDecision Tree Structure:\n")
+tree_structure = export_text(
+    clf,
+    feature_names=list(iris.feature_names)
+)
+print(tree_structure)
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+B2)Build an Artificial Neural Network by implementing the Backpropagation algorithm and
+test the same using appropriate data sets.
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score
+
+# Load the Iris dataset
+iris = datasets.load_iris()
+X = iris.data
+y = iris.target
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.3,
+    random_state=42
+)
+
+# Create and train the MLP model
+mlp = MLPClassifier(
+    hidden_layer_sizes=(10,),
+    activation='relu',
+    solver='adam',
+    max_iter=1000,
+    random_state=42
+)
+
+mlp.fit(X_train, y_train)
+
+# Make predictions
+y_pred = mlp.predict(X_test)
+
+# Evaluate the model
+accuracy = accuracy_score(y_test, y_pred)
+
+print(f"Accuracy: {accuracy * 100:.2f}%")
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+B3)Write a program to implement the naïve Bayesian classifier for a sample training data set
+stored as a .CSV file. Compute the accuracy of the classifier, considering few test data sets.
+Naive Bayes code
+b.3A)i. iris dataset
+import numpy as np
+import pandas as pd
+
+# Load dataset
+from sklearn.datasets import load_iris
+
+iris = load_iris()
+X = pd.DataFrame(iris.data, columns=iris.feature_names)
+y = iris.target
+
+# Split data into training and testing sets
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42
+)
+
+# Train Naive Bayes model
+from sklearn.naive_bayes import GaussianNB
+
+nb = GaussianNB()
+nb.fit(X_train, y_train)
+
+# Predict on test data
+y_pred = nb.predict(X_test)
+
+# Evaluate the model
+from sklearn.metrics import classification_report, confusion_matrix
+
+cm = confusion_matrix(y_test, y_pred)
+print("Confusion Matrix:\n", cm)
+
+print("\nClassification Report:\n")
+print(classification_report(y_test, y_pred))
+
+# Validate the model on unseen data
+test_new = pd.DataFrame(
+    [[4.5, 1.2, 3.1, 2.1]],
+    columns=iris.feature_names
+)
+
+pred = nb.predict(test_new)
+
+print("\nPredicted Unseen Data Label:")
+
+if pred[0] == 0:
+    print("Setosa")
+elif pred[0] == 1:
+    print("Versicolor")
+else:
+    print("Virginica")
+
+B.3B)NaiveBayes_Data.csv
+import pandas as pd
+import numpy as np
+
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+
+# Load the dataset
+data = pd.read_csv("Naive-Bayes-Classification-Data.csv")
+
+# Display the first few rows
+print("First few rows of the dataset:")
+print(data.head())
+
+# Display column names
+print("\nColumns:")
+print(data.columns)
+
+# Features and target
+X = data.drop(columns=["diabetes"])
+y = data["diabetes"]
+
+# Split the dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=12
+)
+
+# Train the Naive Bayes model
+model = GaussianNB()
+model.fit(X_train, y_train)
+
+# Make predictions
+y_pred = model.predict(X_test)
+
+# Confusion Matrix
+cm = confusion_matrix(y_test, y_pred)
+print("\nConfusion Matrix:")
+print(cm)
+
+# Classification Report
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
+
+# Accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy of the Naive Bayes Classifier: {accuracy * 100:.2f}%")
+
+# Compare Actual vs Predicted
+results = pd.DataFrame({
+    "Actual": y_test.values,
+    "Predicted": y_pred
+})
+
+print("\nComparison of Actual and Predicted Labels:")
+print(results.head(50))
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+B4)Write a program to demonstrate Reinforcement learning.
+import numpy as np
+import gymnasium as gym
+import random
+import matplotlib.pyplot as plt
+
+# Create Taxi-v4 environment
+env = gym.make("Taxi-v4")
+
+# Initialize Q-table
+q_table = np.zeros((env.observation_space.n, env.action_space.n))
+
+# Hyperparameters
+alpha = 0.1              # Learning rate
+gamma = 0.99             # Discount factor
+epsilon = 1.0            # Exploration rate
+episodes = 5000
+exploration_decay = 0.995
+min_eps = 0.01
+
+# Store rewards
+rewards = []
+
+# Training
+for episode in range(episodes):
+
+    state, info = env.reset()
+    total_reward = 0
+    done = False
+
+    while not done:
+
+        # Exploration vs Exploitation
+        if random.uniform(0, 1) < epsilon:
+            action = env.action_space.sample()
+        else:
+            action = np.argmax(q_table[state])
+
+        # Take action
+        next_state, reward, terminated, truncated, info = env.step(action)
+        done = terminated or truncated
+
+        # Update Q-table
+        best_next_action = np.argmax(q_table[next_state])
+
+        q_table[state, action] = q_table[state, action] + alpha * (
+            reward
+            + gamma * q_table[next_state, best_next_action]
+            - q_table[state, action]
+        )
+
+        state = next_state
+        total_reward += reward
+
+    # Decay epsilon
+    epsilon = max(min_eps, epsilon * exploration_decay)
+
+    rewards.append(total_reward)
+
+# Plot rewards
+plt.figure(figsize=(10, 5))
+plt.plot(rewards)
+plt.title("Total Rewards per Episode")
+plt.xlabel("Episode")
+plt.ylabel("Reward")
+plt.grid(True)
+plt.show()
+
+# Display Q-table
+print("Q-Table:")
+print(q_table)
+
+# Test the trained agent
+print("\nTesting the trained agent...\n")
+
+test_env = gym.make("Taxi-v4", render_mode="ansi")
+state, info = test_env.reset()
+
+done = False
+total_reward = 0
+
+while not done:
+    action = np.argmax(q_table[state])
+    state, reward, terminated, truncated, info = test_env.step(action)
+    done = terminated or truncated
+    total_reward += reward
+    print(test_env.render())
+
+print("Total Reward during test:", total_reward)
+
+test_env.close()
+env.close()
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+B5)Write a program to Implement CNN models for classification of images
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras import layers, models
+from tensorflow.keras.datasets import mnist
+import matplotlib.pyplot as plt
+
+# Load the MNIST dataset
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+# Preprocess the data
+x_train = x_train.reshape((x_train.shape[0], 28, 28, 1)).astype("float32") / 255.0
+x_test = x_test.reshape((x_test.shape[0], 28, 28, 1)).astype("float32") / 255.0
+
+# Build the CNN model
+model = models.Sequential([
+    layers.Input(shape=(28, 28, 1)),
+    
+    # First Convolutional Layer
+    layers.Conv2D(32, (3, 3), activation='relu'),
+    layers.MaxPooling2D((2, 2)),
+    
+    # Second Convolutional Layer
+    layers.Conv2D(64, (3, 3), activation='relu'),
+    layers.MaxPooling2D((2, 2)),
+    
+    # Third Convolutional Layer
+    layers.Conv2D(64, (3, 3), activation='relu'),
+    
+    # Flatten Layer
+    layers.Flatten(),
+    
+    # Fully Connected Layer
+    layers.Dense(64, activation='relu'),
+    
+    # Output Layer
+    layers.Dense(10, activation='softmax')
+])
+
+# Compile the model
+model.compile(
+    optimizer='adam',
+    loss='sparse_categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+# Train the model
+model.fit(
+    x_train,
+    y_train,
+    epochs=3,
+    batch_size=64,
+    validation_data=(x_test, y_test)
+)
+
+# Evaluate the model
+test_loss, test_acc = model.evaluate(x_test, y_test, verbose=2)
+print(f"Test Accuracy: {test_acc * 100:.2f}%")
+
+# Predict on test data
+predictions = model.predict(x_test)
+
+# Visualize the first 3 predictions
+for i in range(3):
+    plt.figure(figsize=(3, 3))
+    plt.imshow(x_test[i].reshape(28, 28), cmap='gray')
+    plt.title(f"Predicted: {np.argmax(predictions[i])} | True: {y_test[i]}")
+    plt.axis('off')
+    plt.show()
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
