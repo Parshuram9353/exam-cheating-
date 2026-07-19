@@ -1,0 +1,615 @@
+Java lab programs 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+1: Write a Java program to find factorial of numbers using command line arguments. 
+
+public class Lab1 {
+    public static void main(String[] args) {
+        int n, i, j, f;
+
+        for (i = 0; i < args.length; i++) {
+            n = Integer.parseInt(args[i]);
+            f = 1;
+
+            for (j = 1; j <= n; j++) {
+                f = f * j;
+            }
+
+            System.out.println("Factorial of " + n + " = " + f);
+        }
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+2. Write a Java program to store and display student details using an array of objects. 
+
+import java.util.Scanner;
+
+class Student {
+    String srn;
+    String name;
+    int marks;
+
+    void getdata() {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter SRN: ");
+        srn = sc.next();
+
+        System.out.print("Enter Name: ");
+        name = sc.next();
+
+        System.out.print("Enter Marks: ");
+        marks = sc.nextInt();
+    }
+
+    void printdata() {
+        System.out.println(srn + "\t" + name + "\t" + marks);
+    }
+}
+
+public class Lab2 {
+    public static void main(String[] args) {
+        int n, i;
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter how many student information want to store: ");
+        n = sc.nextInt();
+
+        Student s[] = new Student[n];
+
+        System.out.println("Enter student information:");
+
+        for (i = 0; i < n; i++) {
+            s[i] = new Student();
+            s[i].getdata();
+        }
+
+        System.out.println("\nSRN\tName\tMarks");
+
+        for (i = 0; i < n; i++) {
+            s[i].printdata();
+        }
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+3A.Write a Java program to demonstrate method overloading. 
+
+class Shape {
+    void area(double r) {
+        double a = 3.1425 * r * r;
+        System.out.println("Area of a Circle = " + a);
+    }
+
+    void area(int l, int b) {
+        int a = l * b;
+        System.out.println("Area of a Rectangle = " + a);
+    }
+
+    void area(float b, float h) {
+        double a = 0.5 * b * h;
+        System.out.println("Area of a Triangle = " + a);
+    }
+}
+
+public class Lab3A {
+    public static void main(String[] args) {
+        Shape s = new Shape();
+
+        s.area(2);
+        s.area(3, 4);
+        s.area(3.5f, 4.5f);
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+3B. Write a Java program to demonstrate constructor overloading. 
+
+class Consover {
+    String srn;
+    String name;
+    int marks;
+
+    Consover() {
+        srn = "unknown";
+        name = "unknown";
+        marks = 0;
+    }
+
+    Consover(String s, String n, int m) {
+        srn = s;
+        name = n;
+        marks = m;
+    }
+
+    void printdata() {
+        System.out.println("SRN = " + srn + "\tName = " + name + "\tMarks = " + marks);
+    }
+}
+
+public class Lab3B {
+    public static void main(String[] args) {
+        Consover o1 = new Consover();
+        Consover o2 = new Consover("123", "xyz", 40);
+
+        o1.printdata();
+        o2.printdata();
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+4A.Aim: Write a Java program to demonstrate multilevel and hierarchical inheritance. 
+
+import java.util.Scanner;
+
+class A {
+    int m;
+    int n;
+
+    void getdata() {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter m and n: ");
+        m = sc.nextInt();
+        n = sc.nextInt();
+    }
+
+    void printdata() {
+        System.out.println("m = " + m + "\tn = " + n);
+    }
+}
+
+class B extends A {
+    int s;
+
+    void sum() {
+        s = m + n;
+        System.out.println("Sum = " + s);
+    }
+}
+
+class C extends B {
+    int p;
+
+    void prod() {
+        p = m * n;
+        System.out.println("Product = " + p);
+    }
+}
+
+class D extends B {
+    int d;
+
+    void div() {
+        d = m / n;
+        System.out.println("Division = " + d);
+    }
+}
+
+public class Lab4A {
+    public static void main(String[] args) {
+        C x = new C();
+        x.getdata();
+        x.printdata();
+        x.sum();
+        x.prod();
+
+        D y = new D();
+        y.getdata();
+        y.printdata();
+        y.sum();
+        y.div();
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+4B. Write a Java program to demonstrate method overriding. 
+
+class AA {
+    void disp() {
+        System.out.println("Welcome to DSA");
+    }
+}
+
+class BB extends AA {
+    @Override
+    void disp() {
+        System.out.println("Welcome to Java");
+    }
+}
+
+public class Lab4B {
+    public static void main(String[] args) {
+        BB x = new BB();
+        x.disp();
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+5. Write a Java program to demonstrate interfaces. 
+
+interface Triangle {
+    void area(double b, double h);
+}
+
+interface Circle {
+    void area(double r);
+}
+
+class Areatc implements Triangle, Circle {
+
+    @Override
+    public void area(double b, double h) {
+        double a = 0.5 * b * h;
+        System.out.println("Area of a Triangle = " + a);
+    }
+
+    @Override
+    public void area(double r) {
+        double a = 3.142 * r * r;
+        System.out.println("Area of a Circle = " + a);
+    }
+}
+
+public class Lab5 {
+    public static void main(String[] args) {
+        Areatc tc = new Areatc();
+
+        tc.area(3, 4);
+        tc.area(2);
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+6A.Write a Java program to create threads using the Thread class. 
+
+class NaturalThread extends Thread {
+    public void run() {
+        for (int i = 1; i <= 10; i++) {
+            System.out.println("Natural Numbers: " + i);
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                System.out.println("Exception");
+            }
+        }
+    }
+}
+
+class EvenThread extends Thread {
+    public void run() {
+        for (int i = 1; i <= 10; i++) {
+            System.out.println("Even Numbers: " + (i * 2));
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                System.out.println("Exception");
+            }
+        }
+    }
+}
+
+class OddThread extends Thread {
+    public void run() {
+        for (int i = 1; i <= 10; i++) {
+            System.out.println("Odd Numbers: " + (i * 2 - 1));
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                System.out.println("Exception");
+            }
+        }
+    }
+}
+
+public class Lab6A {
+    public static void main(String[] args) {
+        NaturalThread t1 = new NaturalThread();
+        EvenThread t2 = new EvenThread();
+        OddThread t3 = new OddThread();
+
+        t1.start();
+        t2.start();
+        t3.start();
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+6B.Write a Java program to create threads using the Runnable interface. 
+
+class NaturalRunnable implements Runnable {
+    @Override
+    public void run() {
+        for (int i = 1; i <= 10; i++) {
+            System.out.println("Natural Numbers: " + i);
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                System.out.println("Exception");
+            }
+        }
+    }
+}
+
+class EvenRunnable implements Runnable {
+    @Override
+    public void run() {
+        for (int i = 1; i <= 10; i++) {
+            System.out.println("Even Numbers: " + (i * 2));
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                System.out.println("Exception");
+            }
+        }
+    }
+}
+
+class OddRunnable implements Runnable {
+    @Override
+    public void run() {
+        for (int i = 1; i <= 10; i++) {
+            System.out.println("Odd Numbers: " + (i * 2 - 1));
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                System.out.println("Exception");
+            }
+        }
+    }
+}
+
+public class Lab6B {
+    public static void main(String[] args) {
+        NaturalRunnable t1 = new NaturalRunnable();
+        Thread t2 = new Thread(t1);
+
+        EvenRunnable t3 = new EvenRunnable();
+        Thread t4 = new Thread(t3);
+
+        OddRunnable t5 = new OddRunnable();
+        Thread t6 = new Thread(t5);
+
+        t2.start();
+        t4.start();
+        t6.start();
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ 7.Write a Java program to demonstrate access modifiers. 
+
+ProjectFolder/
+│
+├── xxx/
+│   ├── A.java
+│   └── packdemo2.java
+│
+└── yyy/
+    ├── packdemo3.java
+    └── packdemo4.java
+/////////////////////////////////////////////////////
+package xxx;
+
+public class A {
+    private int a = 10;
+    int b = 20;              // Default
+    protected int c = 30;
+    public int d = 40;
+
+    void printdata() {
+        System.out.println("Private = " + a);
+        System.out.println("Default = " + b);
+        System.out.println("Protected = " + c);
+        System.out.println("Public = " + d);
+    }
+}
+
+class B extends A {
+    void display() {
+        // System.out.println("Private = " + a); // Not accessible
+
+        System.out.println("Default = " + b);
+        System.out.println("Protected = " + c);
+        System.out.println("Public = " + d);
+    }
+}
+
+class packdemo1 {
+    public static void main(String[] args) {
+        B x = new B();
+        x.printdata();
+        x.display();
+    }
+}
+/////////////////////////////////////////////////////
+package xxx;
+
+public class packdemo2 {
+    public static void main(String[] args) {
+        A x = new A();
+
+        // System.out.println("Private = " + x.a); // Not accessible
+
+        System.out.println("Default = " + x.b);
+        System.out.println("Protected = " + x.c);
+        System.out.println("Public = " + x.d);
+    }
+}
+/////////////////////////////////////////////////////
+package yyy;
+
+import xxx.A;
+
+class AA extends A {
+    void print() {
+        // System.out.println("Private = " + a); // Not accessible
+        // System.out.println("Default = " + b); // Not accessible
+
+        System.out.println("Protected = " + c);
+        System.out.println("Public = " + d);
+    }
+}
+
+public class packdemo3 {
+    public static void main(String[] args) {
+        AA x = new AA();
+        x.print();
+    }
+}
+/////////////////////////////////////////////////////
+package yyy;
+
+import xxx.A;
+
+public class packdemo4 {
+    public static void main(String[] args) {
+        A x = new A();
+
+        // System.out.println("Private = " + x.a);   // Not accessible
+        // System.out.println("Default = " + x.b);   // Not accessible
+        // System.out.println("Protected = " + x.c); // Not accessible
+
+        System.out.println("Public = " + x.d);
+    }
+}
+/////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Lab 8.Write a Java program to demonstrate Swings (Arithmetic Operations). 
+
+package programs;
+
+import java.awt.EventQueue;
+import javax.swing.*;
+import java.awt.event.*;
+
+public class swing1 extends JFrame {
+
+    private static final long serialVersionUID = 1L;
+
+    private JTextField tnum1;
+    private JTextField tnum2;
+    private JTextField tres;
+
+    public static void main(String[] args) {
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    swing1 frame = new swing1();
+                    frame.setVisible(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public swing1() {
+        setTitle("Simple Calculator");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setBounds(100, 100, 520, 350);
+        getContentPane().setLayout(null);
+
+        JLabel lblNum1 = new JLabel("Num1");
+        lblNum1.setBounds(70, 50, 60, 20);
+        getContentPane().add(lblNum1);
+
+        tnum1 = new JTextField();
+        tnum1.setBounds(150, 50, 120, 25);
+        getContentPane().add(tnum1);
+
+        JLabel lblNum2 = new JLabel("Num2");
+        lblNum2.setBounds(70, 90, 60, 20);
+        getContentPane().add(lblNum2);
+
+        tnum2 = new JTextField();
+        tnum2.setBounds(150, 90, 120, 25);
+        getContentPane().add(tnum2);
+
+        JLabel lblResult = new JLabel("Result");
+        lblResult.setBounds(70, 130, 60, 20);
+        getContentPane().add(lblResult);
+
+        tres = new JTextField();
+        tres.setBounds(150, 130, 120, 25);
+        tres.setEditable(false);
+        getContentPane().add(tres);
+
+        JButton btnAdd = new JButton("Add");
+        btnAdd.setBounds(40, 190, 90, 30);
+        btnAdd.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int n1 = Integer.parseInt(tnum1.getText());
+                int n2 = Integer.parseInt(tnum2.getText());
+                tres.setText(String.valueOf(n1 + n2));
+            }
+        });
+        getContentPane().add(btnAdd);
+
+        JButton btnSub = new JButton("Sub");
+        btnSub.setBounds(150, 190, 90, 30);
+        btnSub.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int n1 = Integer.parseInt(tnum1.getText());
+                int n2 = Integer.parseInt(tnum2.getText());
+                tres.setText(String.valueOf(n1 - n2));
+            }
+        });
+        getContentPane().add(btnSub);
+
+        JButton btnMul = new JButton("Mul");
+        btnMul.setBounds(260, 190, 90, 30);
+        btnMul.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int n1 = Integer.parseInt(tnum1.getText());
+                int n2 = Integer.parseInt(tnum2.getText());
+                tres.setText(String.valueOf(n1 * n2));
+            }
+        });
+        getContentPane().add(btnMul);
+
+        JButton btnDiv = new JButton("Div");
+        btnDiv.setBounds(370, 190, 90, 30);
+        btnDiv.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int n1 = Integer.parseInt(tnum1.getText());
+                int n2 = Integer.parseInt(tnum2.getText());
+
+                if (n2 == 0) {
+                    JOptionPane.showMessageDialog(null, "Cannot divide by zero!");
+                } else {
+                    double res = (double) n1 / n2;
+                    tres.setText(String.valueOf(res));
+                }
+            }
+        });
+        getContentPane().add(btnDiv);
+
+        JButton btnMod = new JButton("Mod");
+        btnMod.setBounds(150, 240, 90, 30);
+        btnMod.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int n1 = Integer.parseInt(tnum1.getText());
+                int n2 = Integer.parseInt(tnum2.getText());
+
+                if (n2 == 0) {
+                    JOptionPane.showMessageDialog(null, "Cannot perform modulus by zero!");
+                } else {
+                    tres.setText(String.valueOf(n1 % n2));
+                }
+            }
+        });
+        getContentPane().add(btnMod);
+
+        JButton btnClear = new JButton("Clear");
+        btnClear.setBounds(260, 240, 90, 30);
+        btnClear.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                tnum1.setText("");
+                tnum2.setText("");
+                tres.setText("");
+                tnum1.requestFocus();
+            }
+        });
+        getContentPane().add(btnClear);
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
